@@ -19,33 +19,48 @@ public class Server {
             Socket sc=ss.accept();
             DataInputStream din=new DataInputStream(sc.getInputStream());
             DataOutputStream dout=new DataOutputStream(sc.getOutputStream());
-            if(count==0){
-                System.out.println("<#ACCEPT#>1");
-                dout.writeUTF("<#ACCEPT#>1");
-                player1=new ServerAgent(sc,din,dout);
-                count++;
-            }else if(count==1){
-                count++;
-                System.out.println("<#ACCEPT#>2");
-                dout.writeUTF("<#ACCEPT#>2");
-                player2=new ServerAgent(sc,din,dout);
-                player1.start();
-                player2.start();
-                player1.dout.writeUTF("<#START#>");
-                player2.dout.writeUTF("<#START#>");
-                int len=WordsStore.wordssotre.length;
-                String s=WordsStore.wordssotre[(int)(Math.random()*len)];
-                player1.dout.writeUTF("<#DATA#>0|"+s+"|true");
-                player2.dout.writeUTF("<#DATA#>0|"+s+"|true");
-                System.out.println("p1-<#DATA#>0|"+s+"|true");
-                System.out.println("p2-<#DATA#>0|"+s+"|true");
+            switch(count){
+                case 0:
+                    count++;
+                    System.out.println("<#ACCEPT#>1");
+                    dout.writeUTF("<#ACCEPT#>1");
+                    player1=new ServerAgent(sc,din,dout);
+                    break;
+                case 1:
+                    count++;
+                    System.out.println("<#ACCEPT#>2");
+                    dout.writeUTF("<#ACCEPT#>2");
+                    player2=new ServerAgent(sc,din,dout);
 
-            }else {
-                System.out.println("<#FULL#>");
-                dout.writeUTF("<#FULL#>");
-                dout.close();
-                din.close();
-                sc.close();
+                    player1.start();
+                    player2.start();
+                    player1.dout.writeUTF("<#START#>");
+                    player2.dout.writeUTF("<#START#>");
+
+                    int len=WordsStore.wordssotre.length;
+                    String s=WordsStore.wordssotre[(int)(Math.random()*len)];
+                    player1.dout.writeUTF("<#DATA#>0|"+s+"|true");
+                    player2.dout.writeUTF("<#DATA#>0|"+s+"|true");
+                    System.out.println("p1-<#DATA#>0|"+s+"|true");
+                    System.out.println("p2-<#DATA#>0|"+s+"|true");
+                    try {
+                        Thread.sleep(3000);
+                        s=WordsStore.wordssotre[(int)(Math.random()*len)];
+                        player1.dout.writeUTF("<#DATA#>1|"+s+"|true");
+                        player2.dout.writeUTF("<#DATA#>1|"+s+"|true");
+                        System.out.println("p1-<#DATA#>1|"+s+"|true");
+                        System.out.println("p2-<#DATA#>1|"+s+"|true");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                default:
+                    System.out.println("<#FULL#>");
+                    dout.writeUTF("<#FULL#>");
+                    dout.close();
+                    din.close();
+                    sc.close();
             }
 
         }
